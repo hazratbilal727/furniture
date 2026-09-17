@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MobileProfile } from "./mobile-profile";
+import { SiteHeader } from "../components/site-header";
 
 type IconName =
   | "bell" | "settings" | "mail" | "phone" | "chevron" | "package"
@@ -65,7 +67,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="profile-page">
+    <>
+      <div className="mobile-profile-shell">
+        <SiteHeader />
+        <MobileProfile />
+      </div>
+      <main className="profile-page profile-legacy">
       <div className="profile-topbar"><span className="profile-kicker">MY ACCOUNT</span><div className="profile-actions"><button className="profile-action-button profile-bell" type="button" aria-label="Open notifications" onClick={() => setMessage("You have 3 new notifications.")}><Icon name="bell" size={21} /><span className="notification-dot" /></button><button className="profile-action-button" type="button" aria-label="Open settings" onClick={() => setMessage("Settings selected.")}><Icon name="settings" size={21} /></button></div></div>
       <Link href="/profile/details" className="profile-summary-card"><div className="profile-photo" aria-label="Profile photo of Muntazir Bukhari">MB</div><div className="profile-identity"><h1>Muntazir Bukhari</h1><span><Icon name="mail" size={15} />hello@muntazirandsons.com</span><span><Icon name="phone" size={15} />+92 300 1234567</span><strong>GOLD MEMBER</strong></div><Icon name="chevron" size={21} /></Link>
       <section className="profile-stats" aria-label="Order statistics">{stats.map((stat) => <div className="profile-stat" key={stat.label}><Icon name={stat.icon} size={19} /><strong>{stat.value}</strong><span>{stat.label}</span></div>)}</section>
@@ -73,6 +80,7 @@ export default function ProfilePage() {
       <button className="logout-option" type="button" onClick={() => setMessage("You have been signed out.")}><span className="logout-icon"><Icon name="logout" size={20} /></span><span className="account-option-copy"><strong>Log Out</strong><small>Sign out from your account</small></span><Icon name="chevron" size={19} /></button>
       <Link className="profile-back-link" href="/">Back to Muntazir & Sons</Link>
       {message && <button className="profile-message" type="button" onClick={() => setMessage("")} role="status">{message}<span>Dismiss</span></button>}
-    </main>
+      </main>
+    </>
   );
 }

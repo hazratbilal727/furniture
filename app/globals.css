@@ -3735,3 +3735,145 @@ footer {
   .profile-stat span { font-size: 8px; }
   .profile-message { left: 20px; right: 20px; }
 }
+
+.mobile-profile-shell { display: none; }
+
+@media (max-width: 800px) {
+  .profile-legacy { display: none; }
+  .mobile-profile-shell { display: block; }
+  .mobile-profile-page {
+    background: #f7f5f1;
+    color: #181818;
+    min-height: calc(100vh - 70px);
+    padding: 18px 16px 92px;
+  }
+  .mobile-profile-heading,
+  .mobile-profile-section-title,
+  .mobile-profile-modal-title {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+  .mobile-profile-heading { margin: 0 2px 18px; }
+  .mobile-profile-eyebrow {
+    color: #e95f2a;
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    margin-bottom: 5px;
+  }
+  .mobile-profile-heading h1,
+  .mobile-profile-section-title h2,
+  .mobile-profile-modal-title h2 { margin: 0; }
+  .mobile-profile-heading h1 { font-size: 27px; letter-spacing: -.04em; }
+  .mobile-profile-notification {
+    align-items: center;
+    background: #fff;
+    border: 1px solid #181818;
+    border-radius: 50%;
+    display: flex;
+    height: 42px;
+    justify-content: center;
+    position: relative;
+    width: 42px;
+  }
+  .mobile-profile-notification span { background: #e95f2a; border: 2px solid #fff; border-radius: 50%; height: 9px; position: absolute; right: 3px; top: 3px; width: 9px; }
+  .mobile-profile-card { background: #fff; border: 1px solid #dedbd5; border-radius: 18px; box-shadow: 0 8px 25px rgba(24, 24, 24, .04); margin-bottom: 14px; }
+  .mobile-profile-identity-card { align-items: center; display: flex; gap: 12px; padding: 17px 14px; }
+  .mobile-profile-avatar { align-items: center; background: #e95f2a; border-radius: 50%; color: #fff; display: flex; flex: 0 0 64px; font-size: 19px; font-weight: 800; height: 64px; justify-content: center; overflow: hidden; position: relative; width: 64px; }
+  .mobile-profile-avatar img, .mobile-profile-edit-avatar img { height: 100%; object-fit: cover; width: 100%; }
+  .mobile-profile-avatar button { align-items: center; background: #181818; border: 2px solid #fff; border-radius: 50%; bottom: -1px; color: #fff; display: flex; height: 22px; justify-content: center; position: absolute; right: -1px; width: 22px; }
+  .mobile-profile-identity { flex: 1; min-width: 0; }
+  .mobile-profile-identity h2 { font-size: 16px; margin: 0 0 5px; }
+  .mobile-profile-identity p { color: #77736d; font-size: 10px; line-height: 1.5; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-profile-identity span { align-items: center; color: #438653; display: flex; font-size: 10px; font-weight: 700; gap: 4px; margin-top: 5px; }
+  .mobile-profile-edit { background: #fff3ed; border: 1px solid #e95f2a; border-radius: 8px; color: #c44b1e; font-size: 11px; font-weight: 800; padding: 8px 10px; }
+  .mobile-profile-overview { padding: 17px 14px 14px; }
+  .mobile-profile-section-title h2 { font-size: 17px; }
+  .mobile-profile-section-title > button { background: none; color: #e95f2a; font-size: 10px; font-weight: 800; padding: 4px; }
+  .mobile-profile-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; }
+  .mobile-profile-stat-grid button { align-items: center; background: none; border: 0; border-right: 1px solid #e8e4de; display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 0 3px; }
+  .mobile-profile-stat-grid button:last-child { border-right: 0; }
+  .mobile-profile-stat-grid .icon { color: #e95f2a; font-size: 15px !important; }
+  .mobile-profile-stat-grid strong { font-size: 17px; }
+  .mobile-profile-stat-grid span { color: #77736d; font-size: 8px; white-space: nowrap; }
+  .mobile-profile-quick-links { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; margin-top: 17px; }
+  .mobile-profile-quick-links button { align-items: center; background: #181818; border-radius: 9px; color: #fff; display: flex; font-size: 11px; gap: 7px; padding: 11px; text-align: left; }
+  .mobile-profile-quick-links button:first-child { background: #fff3ed; color: #181818; }
+  .mobile-profile-quick-links .icon { color: #e95f2a; }
+  .mobile-profile-quick-links b { color: #e95f2a; margin-left: auto; }
+  .mobile-profile-section { margin-top: 24px; }
+  .mobile-profile-section-title { margin: 0 2px 11px; }
+  .mobile-profile-options { background: #fff; border: 1px solid #dedbd5; border-radius: 16px; overflow: hidden; }
+  .mobile-profile-option { align-items: center; background: #fff; border: 0; border-bottom: 1px solid #eeeae4; display: flex; gap: 11px; min-height: 63px; padding: 10px 13px; text-align: left; width: 100%; }
+  .mobile-profile-option:last-child { border-bottom: 0; }
+  .mobile-profile-option:active, .mobile-profile-logout:active { background: #fff3ed; }
+  .mobile-profile-option-icon { align-items: center; background: #fff3ed; border: 1px solid #f3c1aa; border-radius: 9px; color: #e95f2a; display: flex; flex: 0 0 35px; height: 35px; justify-content: center; width: 35px; }
+  .mobile-profile-option > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+  .mobile-profile-option strong { font-size: 12px; }
+  .mobile-profile-option small { color: #77736d; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-profile-option > .icon { color: #9d9992; }
+  .mobile-profile-logout { align-items: center; background: #fff3ed; border: 1px solid #e95f2a; border-radius: 12px; color: #181818; display: flex; font-size: 12px; font-weight: 800; gap: 10px; justify-content: center; margin-top: 17px; min-height: 48px; width: 100%; }
+  .mobile-profile-logout .icon { color: #e95f2a; }
+  .mobile-profile-bottom-nav { align-items: stretch; background: rgba(255,255,255,.97); border-top: 1px solid #dedbd5; bottom: 0; display: flex; height: calc(64px + env(safe-area-inset-bottom)); justify-content: space-around; left: 0; padding: 6px 8px env(safe-area-inset-bottom); position: fixed; right: 0; z-index: 40; }
+  .mobile-profile-bottom-nav a, .mobile-profile-bottom-nav button { align-items: center; background: none; border: 0; color: #98938c; display: flex; flex: 1; flex-direction: column; font-size: 10px; font-weight: 700; gap: 5px; justify-content: center; }
+  .mobile-profile-bottom-nav a.active { color: #e95f2a; }
+  .mobile-profile-toast { align-items: center; background: #181818; border: 0; border-radius: 10px; bottom: calc(77px + env(safe-area-inset-bottom)); color: #fff; display: flex; font-size: 11px; justify-content: space-between; left: 16px; padding: 12px 14px; position: fixed; right: 16px; text-align: left; z-index: 70; }
+  .mobile-profile-toast span { color: #e95f2a; font-weight: 800; }
+  .mobile-profile-modal-wrap { align-items: flex-end; background: rgba(24,24,24,.52); display: flex; inset: 0; justify-content: center; padding: 0; position: fixed; z-index: 65; }
+  .mobile-profile-modal, .mobile-profile-confirm { animation: mobile-panel-in .22s ease-out; background: #fff; border-radius: 22px 22px 0 0; max-height: calc(100dvh - 82px); overflow-y: auto; padding: 20px 17px calc(24px + env(safe-area-inset-bottom)); width: 100%; }
+  .mobile-profile-modal-title { border-bottom: 1px solid #eeeae4; margin-bottom: 16px; padding-bottom: 14px; }
+  .mobile-profile-modal-title h2 { font-size: 22px; }
+  .mobile-profile-modal-title > button { background: #f7f5f1; border-radius: 50%; height: 34px; width: 34px; }
+  .mobile-profile-modal label, .mobile-profile-address-form input { color: #55514c; display: flex; flex-direction: column; font-size: 11px; font-weight: 800; gap: 6px; margin-top: 13px; }
+  .mobile-profile-modal input:not([type="file"]), .mobile-profile-address-form input, .mobile-profile-modal select { background: #fff; border: 1px solid #d9d5ce; border-radius: 9px; color: #181818; min-height: 44px; padding: 0 11px; }
+  .mobile-profile-edit-avatar { align-items: center; display: flex; flex-direction: column; gap: 9px; margin-bottom: 4px; }
+  .mobile-profile-edit-avatar > img, .mobile-profile-edit-avatar { color: #fff; }
+  .mobile-profile-edit-avatar > img, .mobile-profile-edit-avatar { }
+  .mobile-profile-edit-avatar > img { background: #e95f2a; border-radius: 50%; height: 76px; object-fit: cover; width: 76px; }
+  .mobile-profile-edit-avatar:not(:has(img)) { align-items: center; background: #e95f2a; border-radius: 50%; font-size: 22px; font-weight: 800; height: 76px; justify-content: center; width: 76px; }
+  .mobile-profile-edit-avatar label { color: #e95f2a; cursor: pointer; display: block; font-size: 10px; margin: 0; }
+  .mobile-profile-edit-avatar input { display: none; }
+  .mobile-profile-primary { background: #e95f2a; border: 1px solid #c44b1e; border-radius: 9px; color: #fff; font-size: 12px; font-weight: 800; margin-top: 17px; min-height: 46px; padding: 0 16px; width: 100%; }
+  .mobile-profile-panel-action { align-items: center; background: #fff3ed; border-radius: 8px; color: #c44b1e; display: flex; font-size: 10px; font-weight: 800; gap: 4px; padding: 7px 9px; }
+  .mobile-profile-panel-list { display: flex; flex-direction: column; gap: 10px; }
+  .mobile-profile-empty { align-items: center; color: #77736d; display: flex; flex-direction: column; gap: 8px; padding: 30px 20px 15px; text-align: center; }
+  .mobile-profile-empty .icon { color: #e95f2a; }
+  .mobile-profile-empty strong { color: #181818; font-size: 14px; }
+  .mobile-profile-empty p { font-size: 11px; line-height: 1.5; margin: 0; max-width: 280px; }
+  .mobile-profile-empty a { color: #e95f2a; font-size: 11px; font-weight: 800; margin-top: 4px; }
+  .mobile-profile-order, .mobile-profile-address, .mobile-profile-wishlist-row, .mobile-profile-notification-row { align-items: center; background: #faf9f7; border: 1px solid #eeeae4; border-radius: 11px; display: flex; gap: 10px; padding: 12px; }
+  .mobile-profile-order > div:first-child, .mobile-profile-address > div:first-child, .mobile-profile-wishlist-row > div, .mobile-profile-notification-row > div { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+  .mobile-profile-order strong, .mobile-profile-address strong, .mobile-profile-wishlist-row strong, .mobile-profile-notification-row strong { font-size: 11px; }
+  .mobile-profile-order small, .mobile-profile-address small, .mobile-profile-wishlist-row small, .mobile-profile-notification-row small { color: #77736d; font-size: 10px; line-height: 1.45; }
+  .mobile-profile-order > button, .mobile-profile-address > div:last-child button { background: none; color: #e95f2a; font-size: 9px; font-weight: 800; padding: 2px; }
+  .order-status { border-radius: 5px; font-size: 8px; font-weight: 800; padding: 4px 5px; }
+  .order-status-pending { background: #fff0c9; color: #8b6500; }
+  .order-status-delivered { background: #dff3e5; color: #347247; }
+  .order-status-cancelled { background: #eeeae4; color: #77736d; }
+  .mobile-profile-address { align-items: flex-start; }
+  .mobile-profile-address em { background: #fff3ed; color: #e95f2a; font-size: 8px; font-style: normal; margin-left: 6px; padding: 3px 4px; }
+  .mobile-profile-address > div:last-child { display: flex; gap: 7px; }
+  .mobile-profile-address-form { border-top: 1px solid #eeeae4; margin-top: 15px; padding-top: 4px; }
+  .mobile-profile-address-form h3 { font-size: 14px; margin: 0; }
+  .mobile-profile-check { align-items: center !important; flex-direction: row !important; font-weight: 600 !important; }
+  .mobile-profile-check input { min-height: 0 !important; }
+  .mobile-profile-notification-row { align-items: flex-start; }
+  .mobile-profile-notification-row > span { align-items: center; background: #fff3ed; border-radius: 50%; color: #e95f2a; display: flex; height: 32px; justify-content: center; width: 32px; }
+  .mobile-profile-notification-row p { color: #77736d; font-size: 10px; line-height: 1.45; margin: 0; }
+  .mobile-profile-wishlist-row img { border-radius: 7px; height: 54px; object-fit: cover; width: 54px; }
+  .mobile-profile-link-button { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .mobile-profile-settings { display: flex; flex-direction: column; gap: 0; }
+  .mobile-profile-settings > label, .mobile-profile-settings > a { align-items: center; border-bottom: 1px solid #eeeae4; color: #181818; display: flex; flex-direction: row; font-size: 12px; justify-content: space-between; margin: 0; min-height: 52px; }
+  .mobile-profile-settings > label input { accent-color: #e95f2a; min-height: 18px; width: 18px; }
+  .mobile-profile-settings > label select { min-height: 34px; width: 100px; }
+  .mobile-profile-settings > a { color: #e95f2a; font-weight: 800; text-decoration: none; }
+  .mobile-profile-confirm { border-radius: 20px; margin: auto 16px; max-height: none; padding: 25px 20px; text-align: center; width: calc(100% - 32px); }
+  .mobile-profile-confirm > .icon { color: #e95f2a; }
+  .mobile-profile-confirm h2 { font-size: 20px; margin: 12px 0 7px; }
+  .mobile-profile-confirm p { color: #77736d; font-size: 11px; margin: 0; }
+  .mobile-profile-confirm > div { display: flex; gap: 9px; margin-top: 20px; }
+  .mobile-profile-confirm > div button { background: #f7f5f1; border-radius: 9px; flex: 1; font-size: 11px; font-weight: 800; min-height: 44px; }
+  .mobile-profile-confirm > div .mobile-profile-primary { margin: 0; }
+}
