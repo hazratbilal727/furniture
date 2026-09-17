@@ -359,16 +359,25 @@ export default function Home() {
         : `${product.name} saved to wishlist`,
     );
   };
-  const updateQuantity = (id: number, amount: number) =>
-    setCart((current) =>
-      current
-        .map((item) =>
-          item.id === id
-            ? { ...item, quantity: Math.max(0, item.quantity + amount) }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
+  const updateQuantity = (id: number, amount: number) => {
+    const next = cart
+      .map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(0, item.quantity + amount) }
+          : item,
+      )
+      .filter((item) => item.quantity > 0);
+    setCart(next);
+    window.localStorage.setItem("muntazir-cart", JSON.stringify(next));
+    window.dispatchEvent(new Event("muntazir-cart-updated"));
+  };
+  const removeAllCartItems = () => {
+    if (!window.confirm("Are you sure you want to remove all items from your bag?")) return;
+    setCart([]);
+    window.localStorage.removeItem("muntazir-cart");
+    window.dispatchEvent(new Event("muntazir-cart-updated"));
+    setToast("All items removed from your bag");
+  };
   const cartTotal = cart.reduce(
     (total, item) => total + (item.price ?? 0) * item.quantity,
     0,
@@ -395,7 +404,6 @@ export default function Home() {
         onQueryChange={setQuery}
         wishlistCount={wishlistCount}
         onCartOpen={() => setCartOpen(true)}
-        onToast={setToast}
       />
 
       <section className="hero" id="top">
@@ -992,12 +1000,19 @@ export default function Home() {
                 <p className="eyebrow">YOUR SELECTION</p>
                 <h2 id="cart-title">Shopping bag</h2>
               </div>
-              <button
-                onClick={() => setCartOpen(false)}
-                aria-label="Close cart"
-              >
-                <Icon name="close" />
-              </button>
+              <div className="drawer-heading-actions">
+                {cart.length > 0 && (
+                  <button className="remove-all-button" type="button" onClick={removeAllCartItems}>
+                    Remove all
+                  </button>
+                )}
+                <button
+                  onClick={() => setCartOpen(false)}
+                  aria-label="Close cart"
+                >
+                  <Icon name="close" />
+                </button>
+              </div>
             </div>
             {cart.length === 0 ? (
               <div className="cart-empty">
