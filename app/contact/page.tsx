@@ -1,0 +1,10 @@
+"use client";
+
+import { useState } from "react";
+import { PageHero } from "../components/page-hero";
+import { RouteShell } from "../components/route-shell";
+
+export default function ContactPage() {
+  const [sent, setSent] = useState(false);
+  return <RouteShell><main><PageHero eyebrow="WE ARE HERE TO HELP" title={<>Let’s make your space <i>feel right.</i></>} copy="Ask us about a piece, a room, delivery, or a custom direction. Our team would love to hear from you." image="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85" /><section className="contact-route"><div className="contact-details"><p className="eyebrow">VISIT OR WRITE</p><h2>Come say hello.</h2><p>Our studio is open Monday to Saturday, 10am to 7pm. Walk in for a browse or call ahead for a considered consultation.</p><div className="contact-list"><div><i className="icon fa-solid fa-location-dot" /><span><strong>Studio</strong>University Road, Peshawar</span></div><div><i className="icon fa-solid fa-phone" /><span><strong>Phone</strong><a href="tel:+92915273555">+92 91 527 3555</a></span></div><div><i className="icon fa-solid fa-envelope" /><span><strong>Email</strong><a href="mailto:hello@muntazirandsons.com">hello@muntazirandsons.com</a></span></div></div></div><form className="contact-form" onSubmit={(event) => { event.preventDefault(); setSent(true); }}><p className="eyebrow">SEND A MESSAGE</p><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@example.com" /></label><label>How can we help?<textarea required name="message" rows={5} placeholder="Tell us a little about what you need" /></label><button className="button button-primary" type="submit">{sent ? "Message received" : "Send message"} <i className="icon fa-solid fa-arrow-right" /></button>{sent && <p className="form-message">Thank you. A member of our team will be in touch soon.</p>}</form></section></main></RouteShell>;
+}

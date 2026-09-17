@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Muntazir & Sons Furniture | Peshawar",
-  description: "Modern furniture with a point of view, from Peshawar to your home.",
+  description:
+    "Modern furniture with a point of view, from Peshawar to your home.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
