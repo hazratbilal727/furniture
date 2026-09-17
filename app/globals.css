@@ -294,8 +294,8 @@ footer { background: var(--paper); padding: 70px clamp(22px, 5vw, 78px) 25px; }
 .mobile-bottom-nav, .mobile-menu-backdrop { display: none; }
 @media (max-width: 800px) {
 	html, body { max-width: 100%; overflow-x: hidden; }
-	body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
-	.site-header { background: rgba(246,245,242,.97); height: 70px; position: sticky !important; top: 0; z-index: 60; }
+	body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); padding-top: 70px; }
+	.site-header { background: rgba(246,245,242,.98); height: 70px; left: 0; position: fixed !important; right: 0; top: 0; width: 100%; z-index: 60; }
 	.site-header, .site-header * { touch-action: manipulation; }
 	.header-main { gap: 10px; min-height: 70px; padding: 0 16px; }
 	.brand { flex: 1; min-width: 0; }
