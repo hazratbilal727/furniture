@@ -62,6 +62,7 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
     trash: "fa-solid fa-trash-can",
     check: "fa-solid fa-check",
     filter: "fa-solid fa-sliders",
+    tag: "fa-solid fa-tag",
     instagram: "fa-brands fa-instagram",
     facebook: "fa-brands fa-facebook-f",
     pinterest: "fa-brands fa-pinterest-p",
@@ -77,6 +78,14 @@ const money = (price: number | null) => price === null ? "Price on Request" : `R
 
 const searchSuggestions = ["Sofas", "Beds", "Dining tables", "Coffee tables", "Storage units", "Office desks"];
 const primaryNav = ["Home", "Shop", "Category", "Deals", "About Us", "Contact Us"];
+const primaryNavIcons: Record<string, string> = {
+  "Home": "home",
+  "Shop": "shop",
+  "Category": "filter",
+  "Deals": "tag",
+  "About Us": "user",
+  "Contact Us": "headset",
+};
 const profileOptions = [
   { label: "Edit Profile", icon: "user" },
   { label: "My Orders", icon: "bag" },
@@ -268,6 +277,7 @@ export default function Home() {
                   className={isActive ? "nav-item active" : "nav-item"}
                   onClick={() => setMenuOpen(false)}
                 >
+                  <span className="mobile-drawer-icon"><Icon name={primaryNavIcons[item]} size={16} /></span>
                   {item}
                 </a>
               );
@@ -401,7 +411,7 @@ export default function Home() {
         <a className={mobileNav === "home" ? "mobile-nav-item active" : "mobile-nav-item"} href="#top" onClick={() => { setMobileNav("home"); setMenuOpen(false); }}><Icon name="home" size={18} /><span>Home</span></a>
         <a className={mobileNav === "shop" ? "mobile-nav-item active" : "mobile-nav-item"} href="#collection" onClick={() => { setMobileNav("shop"); setMenuOpen(false); }}><Icon name="shop" size={18} /><span>Shop</span></a>
         <button className={mobileNav === "search" ? "mobile-nav-item active" : "mobile-nav-item"} type="button" onClick={() => { setMobileNav("search"); openMobileSearch(); }}><Icon name="search" size={18} /><span>Search</span></button>
-        <button className={mobileNav === "profile" ? "mobile-nav-item active" : "mobile-nav-item"} type="button" onClick={() => { setMobileNav("profile"); setProfileOpen(true); setMenuOpen(false); }}><Icon name="user" size={18} /><span>Profile</span></button>
+        <button className={mobileNav === "profile" ? "mobile-nav-item active" : "mobile-nav-item"} type="button" onClick={() => { setMobileNav("profile"); setProfileOpen((current) => !current); setMenuOpen(false); }}><Icon name="user" size={18} /><span>Profile</span></button>
       </nav>
       {toast && <div className="toast" role="status"><span className="toast-icon"><Icon name="check" size={16} /></span><span>{toast}</span><button onClick={() => setToast("")} aria-label="Dismiss notification"><Icon name="close" size={15} /></button></div>}
     </main>
