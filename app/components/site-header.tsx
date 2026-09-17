@@ -10,10 +10,11 @@ type HeaderProps = {
   wishlistCount?: number;
   onCartOpen?: () => void;
   onToast?: (message: string) => void;
-  onProfileEdit?: () => void;
 };
 
 type CartEntry = { id: number; name: string; price: number; image: string; quantity: number };
+type Profile = { name: string; phone: string; email: string; city: string; avatar: string };
+const defaultProfile: Profile = { name: "Muntazir Bukhari", phone: "+92 300 1234567", email: "hello@muntazirandsons.com", city: "Peshawar, Pakistan", avatar: "" };
 
 const primaryNav = ["Home", "Shop", "Category", "Deals", "About Us", "Contact Us"];
 const primaryNavIcons: Record<string, string> = { Home: "home", Shop: "shop", Category: "filter", Deals: "tag", "About Us": "user", "Contact Us": "headset" };
@@ -32,7 +33,7 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
 
 const money = (price: number) => `Rs. ${price.toLocaleString("en-PK")}`;
 
-export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCartOpen, onToast, onProfileEdit }: HeaderProps) {
+export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCartOpen, onToast }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,7 +41,9 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [routeQuery, setRouteQuery] = useState(query);
-  const profile = { name: "Muntazir Bukhari", email: "hello@muntazirandsons.com" };
+  const [profile, setProfile] = useState<Profile>(defaultProfile);
+  const [profileDraft, setProfileDraft] = useState<Profile>(defaultProfile);
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
 
   const readCart = () => {
     try { setCart(JSON.parse(window.localStorage.getItem("muntazir-cart") ?? "[]")); } catch { setCart([]); }
@@ -50,6 +53,15 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
     window.addEventListener("muntazir-cart-updated", readCart);
     window.addEventListener("storage", readCart);
     return () => { window.clearTimeout(timeout); window.removeEventListener("muntazir-cart-updated", readCart); window.removeEventListener("storage", readCart); };
+  }, []);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      try {
+        const savedProfile = window.localStorage.getItem("muntazir-profile");
+        if (savedProfile) setProfile({ ...defaultProfile, ...JSON.parse(savedProfile) });
+      } catch { setProfile(defaultProfile); }
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, []);
   useEffect(() => {
     const timeout = window.setTimeout(() => setRouteQuery(query), 0);
@@ -67,6 +79,26 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
     if (onQueryChange) onQueryChange(value);
     else if (pathname !== "/shop") router.push(`/shop?query=${encodeURIComponent(value)}`);
   };
+  const openProfileEditor = () => { setProfileDraft(profile); setProfileEditorOpen(true); setProfileOpen(false); };
+  useEffect(() => {
+    const openProfile = () => { setProfileDraft(profile); setProfileEditorOpen(true); setProfileOpen(false); };
+    window.addEventListener("muntazir-open-profile", openProfile);
+    return () => window.removeEventListener("muntazir-open-profile", openProfile);
+  }, [profile]);
+  const handleProfilePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfileDraft((current) => ({ ...current, avatar: String(reader.result) }));
+    reader.readAsDataURL(file);
+  };
+  const saveProfile = () => {
+    if (!profileDraft.name.trim() || !profileDraft.email.trim()) { notify("Name and email are required"); return; }
+    setProfile(profileDraft);
+    window.localStorage.setItem("muntazir-profile", JSON.stringify(profileDraft));
+    setProfileEditorOpen(false);
+    notify("Profile updated successfully");
+  };
 
   return <>
     <header className="site-header">
@@ -81,11 +113,12 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
         <div className="header-actions">
           <button aria-label={`Wishlist, ${wishlistCount} items saved`} className="header-action header-action--icon action-tooltip" type="button" data-tooltip="Wishlist" onClick={() => notify(wishlistCount ? `${wishlistCount} items saved for later` : "Your wishlist is empty")}><Icon name="heart" size={20} />{wishlistCount > 0 && <span className="icon-badge">{wishlistCount}</span>}</button>
           <button aria-label={`Open cart, ${cartCount} items`} className="header-action header-action--icon cart-button action-tooltip" type="button" data-tooltip="Bag" onClick={openBag}><Icon name="bag" size={20} />{cartCount > 0 && <span className="icon-badge">{cartCount}</span>}</button>
-          <div className="profile-menu-wrap"><button aria-label="Open profile menu" aria-expanded={profileOpen} className="header-action profile-button action-tooltip" type="button" data-tooltip="Profile" onClick={() => setProfileOpen((current) => !current)}><Icon name="user" size={20} /></button>{profileOpen && <div className="profile-panel" role="menu" aria-label="Profile menu"><div className="profile-summary"><div className="profile-avatar">{profileInitials}</div><div><strong>{profile.name}</strong><span>{profile.email}</span></div></div><div className="profile-options">{profileOptions.map((option) => <button key={option.label} type="button" className="profile-option" onClick={() => { setProfileOpen(false); if (option.label === "Edit Profile") onProfileEdit?.(); else notify(option.label === "Logout" ? "You have been signed out." : `${option.label} selected`); }}><span className="profile-option-icon"><Icon name={option.icon} size={15} /></span><span>{option.label}</span></button>)}</div></div>}</div>
+          <div className="profile-menu-wrap"><button aria-label="Open profile menu" aria-expanded={profileOpen} className="header-action profile-button action-tooltip" type="button" data-tooltip="Profile" onClick={() => setProfileOpen((current) => !current)}><Icon name="user" size={20} /></button>{profileOpen && <div className="profile-panel" role="menu" aria-label="Profile menu"><div className="profile-summary">{profile.avatar ? <img className="profile-avatar" src={profile.avatar} alt="" /> : <div className="profile-avatar">{profileInitials}</div>}<div><strong>{profile.name}</strong><span>{profile.email}</span></div></div><div className="profile-options">{profileOptions.map((option) => <button key={option.label} type="button" className="profile-option" onClick={() => { if (option.label === "Edit Profile") openProfileEditor(); else { setProfileOpen(false); notify(option.label === "Logout" ? "You have been signed out." : `${option.label} selected`); } }}><span className="profile-option-icon"><Icon name={option.icon} size={15} /></span><span>{option.label}</span></button>)}</div></div>}</div>
           <button className="menu-button" aria-expanded={menuOpen} aria-label={menuOpen ? "Close menu" : "Open menu"} type="button" onClick={() => setMenuOpen((current) => !current)}><Icon name="menu" size={19} /></button>
         </div>
       </div>
     </header>
+    {profileEditorOpen && <div className="modal-backdrop" role="presentation" onClick={() => setProfileEditorOpen(false)}><div className="profile-editor" role="dialog" aria-modal="true" aria-labelledby="shared-profile-editor-title" onClick={(event) => event.stopPropagation()}><div className="editor-heading"><div><p className="eyebrow">YOUR DETAILS</p><h2 id="shared-profile-editor-title">Edit profile</h2></div><button className="modal-close" type="button" onClick={() => setProfileEditorOpen(false)} aria-label="Close profile editor"><Icon name="close" /></button></div><div className="editor-avatar"><div className="editor-avatar-image">{profileDraft.avatar ? <img src={profileDraft.avatar} alt="Profile preview" /> : profileInitials}</div><label className="upload-button">Upload photo<input type="file" accept="image/*" onChange={handleProfilePhoto} /></label></div><div className="profile-form"><label>Full name<input value={profileDraft.name} onChange={(event) => setProfileDraft({ ...profileDraft, name: event.target.value })} /></label><label>Mobile number<input type="tel" value={profileDraft.phone} onChange={(event) => setProfileDraft({ ...profileDraft, phone: event.target.value })} /></label><label>Email address<input type="email" value={profileDraft.email} onChange={(event) => setProfileDraft({ ...profileDraft, email: event.target.value })} /></label><label>City / country<input value={profileDraft.city} onChange={(event) => setProfileDraft({ ...profileDraft, city: event.target.value })} /></label></div><div className="editor-actions"><button className="button button-dark" type="button" onClick={() => setProfileEditorOpen(false)}>Cancel</button><button className="button button-primary" type="button" onClick={saveProfile}>Save changes <Icon name="check" size={16} /></button></div></div></div>}
     {cartOpen && <div className="drawer-backdrop" role="presentation" onClick={() => setCartOpen(false)}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" onClick={(event) => event.stopPropagation()}><div className="drawer-heading"><div><p className="eyebrow">YOUR SELECTION</p><h2>Shopping bag</h2></div><button onClick={() => setCartOpen(false)} aria-label="Close cart"><Icon name="close" /></button></div>{cart.length === 0 ? <div className="cart-empty"><Icon name="bag" size={34} /><p>Your bag is waiting for something special.</p><Link className="button button-dark" href="/shop" onClick={() => setCartOpen(false)}>Explore collection</Link></div> : <div className="cart-items">{cart.map((item) => <div className="cart-item" key={item.id}><div className="cart-thumb" style={{ backgroundImage: `url(${item.image})` }} /><div className="cart-item-info"><h3>{item.name}</h3><strong>{money(item.price)}</strong><span>Quantity: {item.quantity}</span></div></div>)}<button className="button button-primary checkout-button" onClick={() => notify("Order request received. We will contact you shortly.")}>Proceed to checkout <Icon name="arrow" size={17} /></button></div>}</aside></div>}
   </>;
 }

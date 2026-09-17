@@ -14,14 +14,6 @@ type Product = {
 
 type CartItem = Product & { quantity: number };
 
-type Profile = {
-  name: string;
-  phone: string;
-  email: string;
-  city: string;
-  avatar: string;
-};
-
 const products: Product[] = [
   {
     id: 1,
@@ -175,14 +167,6 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
 const money = (price: number | null) =>
   price === null ? "Price on Request" : `Rs. ${price.toLocaleString("en-PK")}`;
 
-const defaultProfile: Profile = {
-  name: "Muntazir Bukhari",
-  phone: "+92 300 1234567",
-  email: "hello@muntazirandsons.com",
-  city: "Peshawar, Pakistan",
-  avatar: "",
-};
-
 const reviews = [
   {
     name: "Areeba Khan",
@@ -244,9 +228,6 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [storageReady, setStorageReady] = useState(false);
-  const [profile, setProfile] = useState<Profile>(defaultProfile);
-  const [profileDraft, setProfileDraft] = useState<Profile>(defaultProfile);
-  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [subscriptionEmail, setSubscriptionEmail] = useState("");
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [dealTime, setDealTime] = useState({
@@ -277,11 +258,8 @@ export default function Home() {
       try {
         const savedCart = window.localStorage.getItem("muntazir-cart");
         const savedWishlist = window.localStorage.getItem("muntazir-wishlist");
-        const savedProfile = window.localStorage.getItem("muntazir-profile");
         if (savedCart) setCart(JSON.parse(savedCart));
         if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-        if (savedProfile)
-          setProfile({ ...defaultProfile, ...JSON.parse(savedProfile) });
       } catch {
         window.localStorage.removeItem("muntazir-cart");
         window.localStorage.removeItem("muntazir-wishlist");
@@ -301,11 +279,6 @@ export default function Home() {
     if (!storageReady) return;
     window.localStorage.setItem("muntazir-wishlist", JSON.stringify(wishlist));
   }, [wishlist, storageReady]);
-
-  useEffect(() => {
-    if (!storageReady) return;
-    window.localStorage.setItem("muntazir-profile", JSON.stringify(profile));
-  }, [profile, storageReady]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -401,30 +374,6 @@ export default function Home() {
     0,
   );
   const wishlistCount = wishlist.length;
-  const profileInitials = profile.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  const openProfileEditor = () => {
-    setProfileDraft(profile);
-    setProfileEditorOpen(true);
-  };
-
-  const handleProfilePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () =>
-      setProfileDraft((current) => ({
-        ...current,
-        avatar: String(reader.result),
-      }));
-    reader.readAsDataURL(file);
-  };
-
   const subscribe = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (
@@ -447,7 +396,6 @@ export default function Home() {
         wishlistCount={wishlistCount}
         onCartOpen={() => setCartOpen(true)}
         onToast={setToast}
-        onProfileEdit={openProfileEditor}
       />
 
       <section className="hero" id="top">
@@ -964,127 +912,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {profileEditorOpen && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => setProfileEditorOpen(false)}
-        >
-          <div
-            className="profile-editor"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="profile-editor-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="editor-heading">
-              <div>
-                <p className="eyebrow">YOUR DETAILS</p>
-                <h2 id="profile-editor-title">Edit profile</h2>
-              </div>
-              <button
-                className="modal-close"
-                onClick={() => setProfileEditorOpen(false)}
-                aria-label="Close profile editor"
-              >
-                <Icon name="close" />
-              </button>
-            </div>
-            <div className="editor-avatar">
-              <div className="editor-avatar-image">
-                {profileDraft.avatar ? (
-                  <img src={profileDraft.avatar} alt="Profile preview" />
-                ) : (
-                  profileInitials
-                )}
-              </div>
-              <label className="upload-button">
-                Upload photo
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePhoto}
-                />
-              </label>
-            </div>
-            <div className="profile-form">
-              <label>
-                Full name
-                <input
-                  value={profileDraft.name}
-                  onChange={(event) =>
-                    setProfileDraft({
-                      ...profileDraft,
-                      name: event.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Mobile number
-                <input
-                  type="tel"
-                  value={profileDraft.phone}
-                  onChange={(event) =>
-                    setProfileDraft({
-                      ...profileDraft,
-                      phone: event.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                Email address
-                <input
-                  type="email"
-                  value={profileDraft.email}
-                  onChange={(event) =>
-                    setProfileDraft({
-                      ...profileDraft,
-                      email: event.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                City / country
-                <input
-                  value={profileDraft.city}
-                  onChange={(event) =>
-                    setProfileDraft({
-                      ...profileDraft,
-                      city: event.target.value,
-                    })
-                  }
-                />
-              </label>
-            </div>
-            <div className="editor-actions">
-              <button
-                className="button button-dark"
-                onClick={() => setProfileEditorOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="button button-primary"
-                onClick={() => {
-                  if (!profileDraft.name.trim() || !profileDraft.email.trim()) {
-                    setToast("Name and email are required");
-                    return;
-                  }
-                  setProfile(profileDraft);
-                  setProfileEditorOpen(false);
-                  setToast("Profile updated successfully");
-                }}
-              >
-                Save changes <Icon name="check" size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {selectedProduct && (
         <div
           className="modal-backdrop"
@@ -1295,6 +1122,7 @@ export default function Home() {
           type="button"
           onClick={() => {
             setMobileNav("profile");
+            window.dispatchEvent(new Event("muntazir-open-profile"));
           }}
         >
           <Icon name="user" size={18} />
