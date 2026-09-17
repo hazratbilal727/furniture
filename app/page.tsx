@@ -49,6 +49,8 @@ const rooms = [
 
 function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const icons: Record<string, string> = {
+    home: "fa-solid fa-house",
+    shop: "fa-solid fa-store",
     search: "fa-solid fa-magnifying-glass",
     bag: "fa-solid fa-bag-shopping",
     heart: "fa-solid fa-heart",
@@ -122,6 +124,13 @@ export default function Home() {
   const [subscriptionEmail, setSubscriptionEmail] = useState("");
   const [subscriptionMessage, setSubscriptionMessage] = useState("");
   const [dealTime, setDealTime] = useState({ hours: 11, minutes: 42, seconds: 18, milliseconds: 99 });
+  const [mobileNav, setMobileNav] = useState("home");
+
+  const openMobileSearch = () => {
+    setMenuOpen(false);
+    document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => document.querySelector<HTMLInputElement>(".collection-tools .search-field input")?.focus(), 450);
+  };
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -241,7 +250,6 @@ export default function Home() {
 
   return (
     <main>
-      <div className="announcement">Complimentary delivery across Peshawar on orders over Rs. 50,000</div>
       <header className="site-header">
         <div className="header-main">
           <a href="#top" className="brand" aria-label="Muntazir and Sons Furniture home">
@@ -265,6 +273,8 @@ export default function Home() {
               );
             })}
           </nav>
+
+          {menuOpen && <button className="mobile-menu-backdrop" type="button" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
 
           <a className="header-shop-button" href="#collection">Shop now <Icon name="arrow" size={15} /></a>
 
@@ -363,8 +373,6 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="benefits-strip" aria-label="Muntazir and Sons service benefits"><div><Icon name="bag" size={22} /><span><strong>Complimentary delivery</strong><small>Across Peshawar over Rs. 50,000</small></span></div><div><Icon name="check" size={22} /><span><strong>Easy returns</strong><small>A simple, helpful process</small></span></div><div><Icon name="heart" size={22} /><span><strong>Premium quality</strong><small>Pieces made to last</small></span></div><div><Icon name="headset" size={22} /><span><strong>Personal support</strong><small>Here when you need us</small></span></div></section>
-
       <section className="hero" id="top"><div className="hero-image" /><div className="hero-orb hero-orb-one" /><div className="hero-orb hero-orb-two" /><div className="hero-content"><span className="hero-badge">The new season edit · up to 20% off</span><p className="eyebrow">EST. 1987 · PESHAWAR</p><h1>Furniture that<br /><i>defines</i> your space.</h1><p className="hero-copy">Discover modern comfort and timeless furniture, thoughtfully made for the way you live.</p><div className="hero-actions"><a className="button button-primary" href="#collection">Explore collection <Icon name="arrow" size={17} /></a><a className="text-link" href="#rooms">Shop by room <Icon name="arrow" size={16} /></a></div><div className="hero-benefits"><span><Icon name="check" size={14} /> Secure payments</span><span><Icon name="check" size={14} /> Best prices</span><span><Icon name="check" size={14} /> Fast delivery</span></div></div><div className="hero-note">MADE FOR LIVING<br /><span>01 / 03</span></div></section>
 
       <section className="category-section"><div className="section-heading"><div><p className="eyebrow">BROWSE BY SPACE</p><h2>Find your feeling.</h2></div><a className="text-link desktop-only" href="#collection">View all <Icon name="arrow" size={16} /></a></div><div className="category-scroll">{categories.map(([name, image]) => <button className="category-card" key={name} onClick={() => { setActiveCategory(name); document.getElementById("collection")?.scrollIntoView(); }}><span className="category-image" style={{ backgroundImage: `url(${image})` }} /><span>{name}</span><Icon name="arrow" size={15} /></button>)}</div></section>
@@ -389,6 +397,12 @@ export default function Home() {
 
       {selectedProduct && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProduct(null)}><div className="detail-modal" role="dialog" aria-modal="true" aria-labelledby="product-detail-title" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelectedProduct(null)} aria-label="Close product details"><Icon name="close" /></button><div className="detail-image" role="img" aria-label={selectedProduct.name} style={{ backgroundImage: `url(${selectedProduct.image})` }} /><div className="detail-content"><p className="eyebrow">{selectedProduct.category}</p><h2 id="product-detail-title">{selectedProduct.name}</h2><strong>{money(selectedProduct.price)}</strong><p>Thoughtfully selected for homes that value comfort, form, and everyday rituals.</p><div className="detail-actions"><button className="button button-primary" onClick={() => { addToCart(selectedProduct); setSelectedProduct(null); }}>Add to cart <Icon name="plus" size={17} /></button><button className={wishlist.includes(selectedProduct.id) ? "detail-wishlist selected" : "detail-wishlist"} onClick={() => toggleWishlist(selectedProduct)}><Icon name="heart" size={17} /> {wishlist.includes(selectedProduct.id) ? "Saved" : "Save for later"}</button></div></div></div></div>}
       {cartOpen && <div className="drawer-backdrop" role="presentation" onClick={() => setCartOpen(false)}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" onClick={(event) => event.stopPropagation()}><div className="drawer-heading"><div><p className="eyebrow">YOUR SELECTION</p><h2 id="cart-title">Shopping bag</h2></div><button onClick={() => setCartOpen(false)} aria-label="Close cart"><Icon name="close" /></button></div>{cart.length === 0 ? <div className="cart-empty"><Icon name="bag" size={34} /><p>Your bag is waiting for something special.</p><a className="button button-dark" href="#collection" onClick={() => setCartOpen(false)}>Explore collection</a></div> : <><div className="cart-items">{cart.map((item) => <div className="cart-item" key={item.id}><div className="cart-thumb" role="img" aria-label={item.name} style={{ backgroundImage: `url(${item.image})` }} /><div className="cart-item-info"><h3>{item.name}</h3><strong>{money(item.price)}</strong><div className="quantity"><button onClick={() => updateQuantity(item.id, -1)} aria-label="Decrease quantity"><Icon name="minus" size={14} /></button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, 1)} aria-label="Increase quantity"><Icon name="plus" size={14} /></button></div></div><button className="remove-item" onClick={() => updateQuantity(item.id, -item.quantity)} aria-label={`Remove ${item.name}`}><Icon name="trash" size={17} /></button></div>)}</div><div className="cart-summary"><div><span>Subtotal</span><strong>{money(cartTotal)}</strong></div><p>Delivery calculated at checkout.</p><button className="button button-primary checkout-button" onClick={() => setToast("Order request received. We will contact you shortly.")}>Proceed to checkout <Icon name="arrow" size={17} /></button></div></>}</aside></div>}
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        <a className={mobileNav === "home" ? "mobile-nav-item active" : "mobile-nav-item"} href="#top" onClick={() => { setMobileNav("home"); setMenuOpen(false); }}><Icon name="home" size={18} /><span>Home</span></a>
+        <a className={mobileNav === "shop" ? "mobile-nav-item active" : "mobile-nav-item"} href="#collection" onClick={() => { setMobileNav("shop"); setMenuOpen(false); }}><Icon name="shop" size={18} /><span>Shop</span></a>
+        <button className={mobileNav === "search" ? "mobile-nav-item active" : "mobile-nav-item"} type="button" onClick={() => { setMobileNav("search"); openMobileSearch(); }}><Icon name="search" size={18} /><span>Search</span></button>
+        <button className={mobileNav === "profile" ? "mobile-nav-item active" : "mobile-nav-item"} type="button" onClick={() => { setMobileNav("profile"); setProfileOpen(true); setMenuOpen(false); }}><Icon name="user" size={18} /><span>Profile</span></button>
+      </nav>
       {toast && <div className="toast" role="status"><span className="toast-icon"><Icon name="check" size={16} /></span><span>{toast}</span><button onClick={() => setToast("")} aria-label="Dismiss notification"><Icon name="close" size={15} /></button></div>}
     </main>
   );
