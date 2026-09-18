@@ -239,23 +239,6 @@ export default function Home() {
     seconds: 18,
     milliseconds: 99,
   });
-  const [mobileNav, setMobileNav] = useState("home");
-
-  const openMobileSearch = () => {
-    document
-      .getElementById("collection")
-      ?.scrollIntoView({ behavior: "smooth" });
-    window.setTimeout(
-      () =>
-        document
-          .querySelector<HTMLInputElement>(
-            ".collection-tools .search-field input",
-          )
-          ?.focus(),
-      450,
-    );
-  };
-
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       try {
@@ -1092,58 +1075,6 @@ export default function Home() {
           onComplete={() => setToast("Checkout simulation complete")}
         />
       )}
-      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        <a
-          className={
-            mobileNav === "home" ? "mobile-nav-item active" : "mobile-nav-item"
-          }
-          href="#top"
-          onClick={() => {
-            setMobileNav("home");
-          }}
-        >
-          <Icon name="home" size={18} />
-          <span>Home</span>
-        </a>
-        <a
-          className={
-            mobileNav === "shop" ? "mobile-nav-item active" : "mobile-nav-item"
-          }
-          href="#collection"
-          onClick={() => {
-            setMobileNav("shop");
-          }}
-        >
-          <Icon name="shop" size={18} />
-          <span>Shop</span>
-        </a>
-        <button
-          className={
-            mobileNav === "search"
-              ? "mobile-nav-item active"
-              : "mobile-nav-item"
-          }
-          type="button"
-          onClick={() => {
-            setMobileNav("search");
-            openMobileSearch();
-          }}
-        >
-          <Icon name="search" size={18} />
-          <span>Search</span>
-        </button>
-        <Link
-          className={
-            mobileNav === "profile"
-              ? "mobile-nav-item active"
-              : "mobile-nav-item"
-          }
-          href="/profile"
-        >
-          <Icon name="user" size={18} />
-          <span>Profile</span>
-        </Link>
-      </nav>
       {toast && (
         <div className="toast" role="status">
           <span className="toast-icon">
