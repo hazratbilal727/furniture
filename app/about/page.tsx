@@ -3,7 +3,7 @@ import { RouteShell } from "../components/route-shell";
 
 const mapUrl = "https://maps.app.goo.gl/nEpBEN1w4nR1vwmm7";
 const businessAddress = "Charsadda Road, Toady Stop, Peshawar, Charsadda Road, Sha Alum Pull, near Sha Alum Pull, Peshawar, 25000, Pakistan";
-const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(businessAddress)}&output=embed`;
+const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(businessAddress)}&z=17&output=embed`;
 const facebookUrl = "https://www.facebook.com/profile.php?id=61594251901318&sk=followers";
 
 const team = [

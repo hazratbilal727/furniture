@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { CheckoutSimulator } from "./components/checkout-simulator";
 import { SiteHeader } from "./components/site-header";
 
 type Product = {
@@ -226,6 +228,7 @@ export default function Home() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [storageReady, setStorageReady] = useState(false);
   const [subscriptionEmail, setSubscriptionEmail] = useState("");
@@ -382,6 +385,14 @@ export default function Home() {
     (total, item) => total + (item.price ?? 0) * item.quantity,
     0,
   );
+  const openCheckout = () => {
+    if (!cart.length) {
+      setToast("Your bag is empty");
+      return;
+    }
+    setCartOpen(false);
+    setCheckoutOpen(true);
+  };
   const wishlistCount = wishlist.length;
   const subscribe = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1001,11 +1012,6 @@ export default function Home() {
                 <h2 id="cart-title">Shopping bag</h2>
               </div>
               <div className="drawer-heading-actions">
-                {cart.length > 0 && (
-                  <button className="remove-all-button" type="button" onClick={removeAllCartItems}>
-                    Remove all
-                  </button>
-                )}
                 <button
                   onClick={() => setCartOpen(false)}
                   aria-label="Close cart"
@@ -1067,18 +1073,9 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="cart-summary">
-                  <div>
-                    <span>Subtotal</span>
-                    <strong>{money(cartTotal)}</strong>
-                  </div>
-                  <p>Delivery calculated at checkout.</p>
                   <button
                     className="button button-primary checkout-button"
-                    onClick={() =>
-                      setToast(
-                        "Order request received. We will contact you shortly.",
-                      )
-                    }
+                    onClick={openCheckout}
                   >
                     Proceed to checkout <Icon name="arrow" size={17} />
                   </button>
@@ -1087,6 +1084,13 @@ export default function Home() {
             )}
           </aside>
         </div>
+      )}
+      {checkoutOpen && (
+        <CheckoutSimulator
+          items={cart}
+          onClose={() => setCheckoutOpen(false)}
+          onComplete={() => setToast("Checkout simulation complete")}
+        />
       )}
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         <a
@@ -1128,21 +1132,17 @@ export default function Home() {
           <Icon name="search" size={18} />
           <span>Search</span>
         </button>
-        <button
+        <Link
           className={
             mobileNav === "profile"
               ? "mobile-nav-item active"
               : "mobile-nav-item"
           }
-          type="button"
-          onClick={() => {
-            setMobileNav("profile");
-            window.dispatchEvent(new Event("muntazir-open-profile"));
-          }}
+          href="/profile"
         >
           <Icon name="user" size={18} />
           <span>Profile</span>
-        </button>
+        </Link>
       </nav>
       {toast && (
         <div className="toast" role="status">

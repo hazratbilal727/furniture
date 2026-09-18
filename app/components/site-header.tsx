@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { CheckoutSimulator } from "./checkout-simulator";
+import { products, type Product } from "./site-data";
+import { WishlistDrawer } from "./wishlist-drawer";
 
 type HeaderProps = {
   query?: string;
@@ -12,8 +15,8 @@ type HeaderProps = {
 };
 
 type CartEntry = { id: number; name: string; price: number; image: string; quantity: number };
-type Profile = { name: string; phone: string; email: string; city: string; avatar: string };
-const defaultProfile: Profile = { name: "Muntazir Bukhari", phone: "+92 300 1234567", email: "hello@muntazirandsons.com", city: "Peshawar, Pakistan", avatar: "" };
+type Profile = { name: string; phone: string; email: string; city: string; avatar: string; cropZoom: number; cropX: number; cropY: number };
+const defaultProfile: Profile = { name: "Muntazir Bukhari", phone: "+92 300 1234567", email: "hello@muntazirandsons.com", city: "Peshawar, Pakistan", avatar: "", cropZoom: 1, cropX: 0, cropY: 0 };
 
 const primaryNav = ["Home", "Shop", "Category", "Deals", "About Us", "Contact Us"];
 const primaryNavIcons: Record<string, string> = { Home: "home", Shop: "shop", Category: "filter", Deals: "tag", "About Us": "user", "Contact Us": "headset" };
@@ -22,7 +25,6 @@ const profileOptions = [
   { label: "Edit Profile", icon: "user" }, { label: "My Orders", icon: "bag" }, { label: "Saved Items", icon: "heart" },
   { label: "Address Book", icon: "map" }, { label: "Support", icon: "headset" }, { label: "Logout", icon: "logout" },
 ];
-
 function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const icons: Record<string, string> = {
     home: "fa-solid fa-house", shop: "fa-solid fa-store", search: "fa-solid fa-magnifying-glass", bag: "fa-solid fa-bag-shopping", heart: "fa-solid fa-heart", menu: "fa-solid fa-bars", arrow: "fa-solid fa-arrow-right", close: "fa-solid fa-xmark", check: "fa-solid fa-check", trash: "fa-solid fa-trash-can", filter: "fa-solid fa-sliders", tag: "fa-solid fa-tag", user: "fa-solid fa-user", map: "fa-solid fa-map-location-dot", headset: "fa-solid fa-headset", logout: "fa-solid fa-right-from-bracket",
@@ -32,12 +34,15 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
 
 const money = (price: number) => `Rs. ${price.toLocaleString("en-PK")}`;
 
-export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCartOpen }: HeaderProps) {
+export function SiteHeader({ query = "", onQueryChange, onCartOpen }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [wishlist, setWishlist] = useState<number[]>([]);
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [routeQuery, setRouteQuery] = useState(query);
   const [profile, setProfile] = useState<Profile>(defaultProfile);
@@ -56,6 +61,15 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
     window.addEventListener("muntazir-cart-updated", readCart);
     window.addEventListener("storage", readCart);
     return () => { window.clearTimeout(timeout); window.removeEventListener("muntazir-cart-updated", readCart); window.removeEventListener("storage", readCart); };
+  }, []);
+  useEffect(() => {
+    const readWishlist = () => {
+      try { setWishlist(JSON.parse(window.localStorage.getItem("muntazir-wishlist") ?? "[]")); } catch { setWishlist([]); }
+    };
+    const timeout = window.setTimeout(readWishlist, 0);
+    window.addEventListener("storage", readWishlist);
+    window.addEventListener("muntazir-wishlist-updated", readWishlist);
+    return () => { window.clearTimeout(timeout); window.removeEventListener("storage", readWishlist); window.removeEventListener("muntazir-wishlist-updated", readWishlist); };
   }, []);
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -77,6 +91,7 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
   }, [toastMessage]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const savedProducts = products.filter((product) => wishlist.includes(product.id));
   const profileDirty = profileEditorOpen && JSON.stringify(profileDraft) !== JSON.stringify(profile);
   const profileInitials = profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
   const activeItem = pathname === "/" ? "Home" : pathname === "/shop" ? "Shop" : pathname === "/category" ? "Category" : pathname === "/deals" ? "Deals" : pathname === "/about" ? "About Us" : pathname === "/contact" ? "Contact Us" : "";
@@ -97,6 +112,31 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
     notify("All items removed from your bag");
   };
   const openBag = () => onCartOpen ? onCartOpen() : setCartOpen(true);
+  const removeWishlistItem = (id: number) => {
+    const next = wishlist.filter((itemId) => itemId !== id);
+    setWishlist(next);
+    window.localStorage.setItem("muntazir-wishlist", JSON.stringify(next));
+    window.dispatchEvent(new Event("muntazir-wishlist-updated"));
+  };
+  const clearWishlist = () => {
+    if (!window.confirm("Are you sure you want to remove all items from your wishlist?")) return;
+    setWishlist([]);
+    window.localStorage.removeItem("muntazir-wishlist");
+    window.dispatchEvent(new Event("muntazir-wishlist-updated"));
+    notify("Wishlist cleared");
+  };
+  const addWishlistToCart = (product: Product) => {
+    const next = cart.some((item) => item.id === product.id) ? cart.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...cart, { ...product, quantity: 1 }];
+    setCart(next);
+    window.localStorage.setItem("muntazir-cart", JSON.stringify(next));
+    window.dispatchEvent(new Event("muntazir-cart-updated"));
+    notify(`${product.name} added to your bag`);
+  };
+  const openCheckout = () => {
+    if (!cart.length) { notify("Your bag is empty"); return; }
+    setCartOpen(false);
+    setCheckoutOpen(true);
+  };
   const handleSearch = (value: string) => {
     setRouteQuery(value);
     if (onQueryChange) onQueryChange(value);
@@ -112,7 +152,7 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => setProfileDraft((current) => ({ ...current, avatar: String(reader.result) }));
+    reader.onload = () => setProfileDraft((current) => ({ ...current, avatar: String(reader.result), cropZoom: 1, cropX: 0, cropY: 0 }));
     reader.readAsDataURL(file);
   };
   const saveProfile = () => {
@@ -198,16 +238,18 @@ export function SiteHeader({ query = "", onQueryChange, wishlistCount = 0, onCar
         <Link className="header-shop-button" href={pathname === "/" ? "#collection" : "/shop"}>Shop now <Icon name="arrow" size={15} /></Link>
         <div className="header-search"><label className="search-shell" aria-label="Search furniture products"><Icon name="search" size={17} /><input value={routeQuery} onChange={(event) => handleSearch(event.target.value)} list="search-suggestions" placeholder="Search furniture..." aria-label="Search furniture products" /><datalist id="search-suggestions">{searchSuggestions.map((suggestion) => <option key={suggestion} value={suggestion} />)}</datalist></label></div>
         <div className="header-actions">
-          <button aria-label={`Wishlist, ${wishlistCount} items saved`} className="header-action header-action--icon action-tooltip" type="button" data-tooltip="Wishlist" onClick={() => notify(wishlistCount ? `${wishlistCount} items saved for later` : "Your wishlist is empty")}><Icon name="heart" size={20} />{wishlistCount > 0 && <span className="icon-badge">{wishlistCount}</span>}</button>
+          <button aria-label={`Wishlist, ${wishlist.length} items saved`} className="header-action header-action--icon action-tooltip" type="button" data-tooltip="Wishlist" onClick={() => setWishlistOpen(true)}><Icon name="heart" size={20} />{wishlist.length > 0 && <span className="icon-badge">{wishlist.length}</span>}</button>
           <button aria-label={`Open cart, ${cartCount} items`} className="header-action header-action--icon cart-button action-tooltip" type="button" data-tooltip="Bag" onClick={openBag}><Icon name="bag" size={20} />{cartCount > 0 && <span className="icon-badge">{cartCount}</span>}</button>
-          <div className="profile-menu-wrap"><button aria-label="Open profile menu" aria-expanded={profileOpen} className="header-action profile-button action-tooltip" type="button" data-tooltip="Profile" onClick={() => setProfileOpen((current) => !current)}><Icon name="user" size={20} /></button>{profileOpen && <div className="profile-panel" role="menu" aria-label="Profile menu"><div className="profile-summary">{profile.avatar ? <img className="profile-avatar" src={profile.avatar} alt="" /> : <div className="profile-avatar">{profileInitials}</div>}<div><strong>{profile.name}</strong><span>{profile.email}</span></div></div><div className="profile-options">{profileOptions.map((option) => <button key={option.label} type="button" className="profile-option" onClick={() => { if (option.label === "Edit Profile") openProfileEditor(); else { setProfileOpen(false); notify(option.label === "Logout" ? "You have been signed out." : `${option.label} selected`); } }}><span className="profile-option-icon"><Icon name={option.icon} size={15} /></span><span>{option.label}</span></button>)}</div></div>}</div>
+          <div className="profile-menu-wrap"><button aria-label="Open profile menu" aria-expanded={profileOpen} className="header-action profile-button action-tooltip" type="button" data-tooltip="Profile" onClick={() => setProfileOpen((current) => !current)}>{profile.avatar ? <img className="header-profile-avatar" src={profile.avatar} alt="" style={{ objectPosition: `${50 + profile.cropX}% ${50 + profile.cropY}%`, transform: `scale(${profile.cropZoom})` }} /> : <Icon name="user" size={20} />}</button>{profileOpen && <div className="profile-panel" role="menu" aria-label="Profile menu"><div className="profile-summary">{profile.avatar ? <img className="profile-avatar" src={profile.avatar} alt="" style={{ objectPosition: `${50 + profile.cropX}% ${50 + profile.cropY}%`, transform: `scale(${profile.cropZoom})` }} /> : <div className="profile-avatar">{profileInitials}</div>}<div><strong>{profile.name}</strong><span>{profile.email}</span></div></div><div className="profile-options">{profileOptions.map((option) => <button key={option.label} type="button" className="profile-option" onClick={() => { if (option.label === "Edit Profile") openProfileEditor(); else { setProfileOpen(false); notify(option.label === "Logout" ? "You have been signed out." : `${option.label} selected`); } }}><span className="profile-option-icon"><Icon name={option.icon} size={15} /></span><span>{option.label}</span></button>)}</div></div>}</div>
           <button className="menu-button" aria-expanded={menuOpen} aria-label={menuOpen ? "Close menu" : "Open menu"} type="button" onClick={() => setMenuOpen((current) => !current)}><Icon name="menu" size={19} /></button>
         </div>
       </div>
     </header>
-    {profileEditorOpen && <div className="modal-backdrop" role="presentation" onClick={requestCloseProfile}><div className="profile-editor" role="dialog" aria-modal="true" aria-labelledby="shared-profile-editor-title" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Enter" && event.target instanceof HTMLInputElement) { event.preventDefault(); saveProfile(); } }}><div className="editor-heading"><div><p className="eyebrow">YOUR DETAILS</p><h2 id="shared-profile-editor-title">Edit profile</h2></div><button className="modal-close" type="button" onClick={requestCloseProfile} aria-label="Close profile editor"><Icon name="close" /></button></div><div className="editor-avatar"><div className="editor-avatar-image">{profileDraft.avatar ? <img src={profileDraft.avatar} alt="Profile preview" /> : profileInitials}</div><label className="upload-button">Upload photo<input type="file" accept="image/*" onChange={handleProfilePhoto} /></label></div><div className="profile-form"><label>Full name<input value={profileDraft.name} onChange={(event) => setProfileDraft({ ...profileDraft, name: event.target.value })} /></label><label>Mobile number<input type="tel" value={profileDraft.phone} onChange={(event) => setProfileDraft({ ...profileDraft, phone: event.target.value })} /></label><label>Email address<input type="email" value={profileDraft.email} onChange={(event) => setProfileDraft({ ...profileDraft, email: event.target.value })} /></label><label>City / country<input value={profileDraft.city} onChange={(event) => setProfileDraft({ ...profileDraft, city: event.target.value })} /></label></div><div className="editor-actions"><button className="button button-dark" type="button" onClick={requestCloseProfile}><Icon name="close" size={14} /> Cancel</button><button className="button button-primary" type="button" onClick={saveProfile}>Save changes <Icon name="check" size={16} /></button></div></div></div>}
+    {profileEditorOpen && <div className="modal-backdrop" role="presentation" onClick={requestCloseProfile}><div className="profile-editor" role="dialog" aria-modal="true" aria-labelledby="shared-profile-editor-title" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Enter" && event.target instanceof HTMLInputElement) { event.preventDefault(); saveProfile(); } }}><div className="editor-heading"><div><p className="eyebrow">YOUR DETAILS</p><h2 id="shared-profile-editor-title">Edit profile</h2></div><button className="modal-close" type="button" onClick={requestCloseProfile} aria-label="Close profile editor"><Icon name="close" /></button></div><div className="editor-avatar"><div className="editor-avatar-image">{profileDraft.avatar ? <img src={profileDraft.avatar} alt="Profile preview" style={{ objectPosition: `${50 + profileDraft.cropX}% ${50 + profileDraft.cropY}%`, transform: `scale(${profileDraft.cropZoom})` }} /> : profileInitials}</div><div className="editor-avatar-controls"><label className="upload-button">Upload photo<input type="file" accept="image/*" onChange={handleProfilePhoto} /></label></div></div><div className="profile-form"><label>Full name<input value={profileDraft.name} onChange={(event) => setProfileDraft({ ...profileDraft, name: event.target.value })} /></label><label>Mobile number<input type="tel" value={profileDraft.phone} onChange={(event) => setProfileDraft({ ...profileDraft, phone: event.target.value })} /></label><label>Email address<input type="email" value={profileDraft.email} onChange={(event) => setProfileDraft({ ...profileDraft, email: event.target.value })} /></label><label>City / country<input value={profileDraft.city} onChange={(event) => setProfileDraft({ ...profileDraft, city: event.target.value })} /></label></div><div className="editor-actions"><button className="button button-dark" type="button" onClick={requestCloseProfile}><Icon name="close" size={14} /> Cancel</button><button className="button button-primary" type="button" onClick={saveProfile}>Save changes <Icon name="check" size={16} /></button></div></div></div>}
     {discardConfirmOpen && <div className="modal-backdrop" role="presentation"><div className="profile-discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="discard-profile-title"><button className="profile-discard-close" type="button" onClick={discardProfileChanges} aria-label="Discard profile changes"><Icon name="close" /></button><p className="eyebrow">UNSAVED PROFILE CHANGES</p><h2 id="discard-profile-title">Leave without saving?</h2><p>Your profile edits have not been saved. Would you like to save them before leaving?</p><div className="editor-actions"><button className="button button-primary" type="button" onClick={saveBeforeLeaving}>Save changes</button><button className="button button-dark profile-keep-editing" type="button" onClick={() => { setDiscardConfirmOpen(false); pendingAction.current = null; }}>Keep editing</button></div></div></div>}
-    {cartOpen && <div className="drawer-backdrop" role="presentation" onClick={() => setCartOpen(false)}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" onClick={(event) => event.stopPropagation()}><div className="drawer-heading"><div><p className="eyebrow">YOUR SELECTION</p><h2>Shopping bag</h2></div><div className="drawer-heading-actions">{cart.length > 0 && <button className="remove-all-button" type="button" onClick={removeAllCartItems}>Remove all</button>}<button onClick={() => setCartOpen(false)} aria-label="Close cart"><Icon name="close" /></button></div></div>{cart.length === 0 ? <div className="cart-empty"><Icon name="bag" size={34} /><p>Your bag is waiting for something special.</p><Link className="button button-dark" href="/shop" onClick={() => setCartOpen(false)}>Explore collection</Link></div> : <div className="cart-items">{cart.map((item) => <div className="cart-item" key={item.id}><div className="cart-thumb" style={{ backgroundImage: `url(${item.image})` }} /><div className="cart-item-info"><h3>{item.name}</h3><strong>{money(item.price)}</strong><span>Quantity: {item.quantity}</span></div><button className="remove-item" type="button" onClick={() => removeCartItem(item.id)} aria-label={`Remove ${item.name}`}><Icon name="trash" size={17} /></button></div>)}<button className="button button-primary checkout-button" onClick={() => notify("Order request received. We will contact you shortly.")}>Proceed to checkout <Icon name="arrow" size={17} /></button></div>}</aside></div>}
+    {cartOpen && <div className="drawer-backdrop" role="presentation" onClick={() => setCartOpen(false)}><aside className="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" onClick={(event) => event.stopPropagation()}><div className="drawer-heading"><div><p className="eyebrow">YOUR SELECTION</p><h2>Shopping bag</h2></div><div className="drawer-heading-actions"><button onClick={() => setCartOpen(false)} aria-label="Close cart"><Icon name="close" /></button></div></div>{cart.length === 0 ? <div className="cart-empty"><Icon name="bag" size={34} /><p>Your bag is waiting for something special.</p><Link className="button button-dark" href="/shop" onClick={() => setCartOpen(false)}>Explore collection</Link></div> : <><div className="cart-items">{cart.map((item) => <div className="cart-item" key={item.id}><div className="cart-thumb" style={{ backgroundImage: `url(${item.image})` }} /><div className="cart-item-info"><h3>{item.name}</h3><strong>{money(item.price)}</strong><span>Quantity: {item.quantity}</span></div><button className="remove-item" type="button" onClick={() => removeCartItem(item.id)} aria-label={`Remove ${item.name}`}><Icon name="trash" size={17} /></button></div>)}</div><div className="cart-summary"><button className="button button-primary checkout-button" type="button" onClick={openCheckout}>Proceed to checkout <Icon name="arrow" size={17} /></button></div></>}</aside></div>}
+    {checkoutOpen && <CheckoutSimulator items={cart} onClose={() => setCheckoutOpen(false)} onComplete={() => notify("Checkout simulation complete")}/>} 
+    {wishlistOpen && <WishlistDrawer items={savedProducts} onClose={() => setWishlistOpen(false)} onRemove={removeWishlistItem} onClear={clearWishlist} onAddToCart={addWishlistToCart}/>} 
     {toastMessage && <div className="profile-toast" role="status"><span className="profile-toast-icon"><Icon name="check" size={13} /></span><span>{toastMessage}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToastMessage("")}><Icon name="close" size={12} /></button></div>}
   </>;
 }
