@@ -34,3 +34,15 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### Admin login environment variables
+
+Add these variables in Vercel under **Project Settings > Environment Variables** for the Production environment:
+
+```env
+AUTH_SECRET=replace-with-a-long-random-secret
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace-with-a-strong-password
+```
+
+`AUTH_SECRET` signs the admin session cookie and is required in production. Redeploy after adding or changing these variables.

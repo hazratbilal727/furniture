@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const icons: Record<string, string> = {
     home: "fa-solid fa-house",
     shop: "fa-solid fa-store",
-    search: "fa-solid fa-magnifying-glass",
+    category: "fa-solid fa-sliders",
     user: "fa-solid fa-user",
   };
 
@@ -23,33 +22,11 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [searchActive, setSearchActive] = useState(false);
 
   const isHome = pathname === "/";
   const isShop = pathname === "/shop";
+  const isCategory = pathname === "/category";
   const isProfile = pathname === "/profile";
-
-  const openSearch = () => {
-    setSearchActive(true);
-    if (!isHome) {
-      router.push("/shop");
-      return;
-    }
-
-    document
-      .getElementById("collection")
-      ?.scrollIntoView({ behavior: "smooth" });
-    window.setTimeout(
-      () =>
-        document
-          .querySelector<HTMLInputElement>(
-            ".collection-tools .search-field input",
-          )
-          ?.focus(),
-      450,
-    );
-  };
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
@@ -67,14 +44,13 @@ export function MobileBottomNav() {
         <Icon name="shop" size={18} />
         <span>Shop</span>
       </Link>
-      <button
-        className={searchActive ? "mobile-nav-item active" : "mobile-nav-item"}
-        type="button"
-        onClick={openSearch}
+      <Link
+        className={isCategory ? "mobile-nav-item active" : "mobile-nav-item"}
+        href="/category"
       >
-        <Icon name="search" size={18} />
-        <span>Search</span>
-      </button>
+        <Icon name="category" size={18} />
+        <span>Category</span>
+      </Link>
       <Link
         className={isProfile ? "mobile-nav-item active" : "mobile-nav-item"}
         href="/profile"

@@ -27,20 +27,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid email and password." }, { status: 400 });
   }
 
-  const credentials = getAdminCredentials();
-  if (email !== credentials.email || !matchesSecret(password, credentials.password)) {
-    return NextResponse.json({ error: "The email or password is incorrect." }, { status: 401 });
-  }
+  try {
+    const credentials = getAdminCredentials();
+    if (email !== credentials.email || !matchesSecret(password, credentials.password)) {
+      return NextResponse.json({ error: "The email or password is incorrect." }, { status: 401 });
+    }
 
-  const response = NextResponse.json({ admin: { email: credentials.email } });
-  response.cookies.set({
-    name: authCookieName,
-    value: createSessionToken(credentials.email),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: sessionDurationSeconds,
-  });
-  return response;
+    const response = NextResponse.json({ admin: { email: credentials.email } });
+    response.cookies.set({
+      name: authCookieName,
+      value: createSessionToken(credentials.email),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: sessionDurationSeconds,
+    });
+    return response;
+  } catch (error) {
+    console.error("Admin login is not configured correctly.", error);
+    return NextResponse.json(
+      { error: "Admin login is not configured on this deployment." },
+      { status: 500 },
+    );
+  }
 }
