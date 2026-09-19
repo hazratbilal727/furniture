@@ -4,7 +4,9 @@ import { readEdgeSessionToken } from "./lib/auth/edge-session";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const session = await readEdgeSessionToken(request.cookies.get(authCookieName)?.value);
+  const session = await readEdgeSessionToken(
+    request.cookies.get(authCookieName)?.value,
+  );
   const isLoginPage = pathname === "/admin/login";
 
   if (pathname.startsWith("/admin") && isLoginPage && session) {
@@ -17,7 +19,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/login" && !session) {
+  if (
+    pathname.startsWith("/api/auth/") &&
+    pathname !== "/api/auth/login" &&
+    !session
+  ) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

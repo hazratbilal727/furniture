@@ -1,6 +1,10 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { authCookieName, getAdminCredentials, sessionDurationSeconds } from "../../../../lib/auth/config";
+import {
+  authCookieName,
+  getAdminCredentials,
+  sessionDurationSeconds,
+} from "../../../../lib/auth/config";
 import { createSessionToken } from "../../../../lib/auth/session";
 
 function hash(value: string) {
@@ -21,16 +25,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const email = typeof (body as { email?: unknown })?.email === "string" ? (body as { email: string }).email.trim().toLowerCase() : "";
-  const password = typeof (body as { password?: unknown })?.password === "string" ? (body as { password: string }).password : "";
+  const email =
+    typeof (body as { email?: unknown })?.email === "string"
+      ? (body as { email: string }).email.trim().toLowerCase()
+      : "";
+  const password =
+    typeof (body as { password?: unknown })?.password === "string"
+      ? (body as { password: string }).password
+      : "";
   if (!email || !password || !/^\S+@\S+\.\S+$/.test(email)) {
-    return NextResponse.json({ error: "Enter a valid email and password." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Enter a valid email and password." },
+      { status: 400 },
+    );
   }
 
   try {
     const credentials = getAdminCredentials();
-    if (email !== credentials.email || !matchesSecret(password, credentials.password)) {
-      return NextResponse.json({ error: "The email or password is incorrect." }, { status: 401 });
+    if (
+      email !== credentials.email ||
+      !matchesSecret(password, credentials.password)
+    ) {
+      return NextResponse.json(
+        { error: "The email or password is incorrect." },
+        { status: 401 },
+      );
     }
 
     const response = NextResponse.json({ admin: { email: credentials.email } });

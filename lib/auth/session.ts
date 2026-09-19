@@ -1,5 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { authCookieName, getAuthSecret, sessionDurationSeconds } from "./config";
+import {
+  authCookieName,
+  getAuthSecret,
+  sessionDurationSeconds,
+} from "./config";
 
 type SessionPayload = {
   sub: "admin";
@@ -16,7 +20,9 @@ function decode(value: string) {
 }
 
 function sign(value: string) {
-  return createHmac("sha256", getAuthSecret()).update(value).digest("base64url");
+  return createHmac("sha256", getAuthSecret())
+    .update(value)
+    .digest("base64url");
 }
 
 export function createSessionToken(email: string) {
@@ -29,7 +35,9 @@ export function createSessionToken(email: string) {
   return `${encodedPayload}.${sign(encodedPayload)}`;
 }
 
-export function readSessionToken(token: string | undefined): SessionPayload | null {
+export function readSessionToken(
+  token: string | undefined,
+): SessionPayload | null {
   if (!token) return null;
   const [encodedPayload, signature] = token.split(".");
   if (!encodedPayload || !signature) return null;
@@ -37,11 +45,20 @@ export function readSessionToken(token: string | undefined): SessionPayload | nu
   const expectedSignature = sign(encodedPayload);
   const actualBuffer = Buffer.from(signature);
   const expectedBuffer = Buffer.from(expectedSignature);
-  if (actualBuffer.length !== expectedBuffer.length || !timingSafeEqual(actualBuffer, expectedBuffer)) return null;
+  if (
+    actualBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(actualBuffer, expectedBuffer)
+  )
+    return null;
 
   try {
     const payload = JSON.parse(decode(encodedPayload)) as SessionPayload;
-    if (payload.sub !== "admin" || typeof payload.email !== "string" || payload.exp <= Math.floor(Date.now() / 1000)) return null;
+    if (
+      payload.sub !== "admin" ||
+      typeof payload.email !== "string" ||
+      payload.exp <= Math.floor(Date.now() / 1000)
+    )
+      return null;
     return payload;
   } catch {
     return null;

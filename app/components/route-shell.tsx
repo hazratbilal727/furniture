@@ -3,5 +3,11 @@ import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
 export function RouteShell({ children }: { children: ReactNode }) {
-  return <><SiteHeader />{children}<SiteFooter /></>;
+  return (
+    <>
+      <SiteHeader />
+      {children}
+      <SiteFooter />
+    </>
+  );
 }

@@ -151,6 +151,8 @@ function Icon({ name, size = 20 }: { name: string; size?: number }) {
     tag: "fa-solid fa-tag",
     instagram: "fa-brands fa-instagram",
     facebook: "fa-brands fa-facebook-f",
+    x: "fa-brands fa-x-twitter",
+    youtube: "fa-brands fa-youtube",
     pinterest: "fa-brands fa-pinterest-p",
     user: "fa-solid fa-user",
     map: "fa-solid fa-map-location-dot",
@@ -328,7 +330,7 @@ export default function Home() {
           )
         : [...current, { ...product, quantity: 1 }],
     );
-      window.dispatchEvent(new Event("muntazir-cart-updated"));
+    window.dispatchEvent(new Event("muntazir-cart-updated"));
     setToast(`${product.name} added to your bag`);
     setCartOpen(true);
   };
@@ -358,7 +360,12 @@ export default function Home() {
     window.dispatchEvent(new Event("muntazir-cart-updated"));
   };
   const removeAllCartItems = () => {
-    if (!window.confirm("Are you sure you want to remove all items from your bag?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to remove all items from your bag?",
+      )
+    )
+      return;
     setCart([]);
     window.localStorage.removeItem("muntazir-cart");
     window.dispatchEvent(new Event("muntazir-cart-updated"));
@@ -703,13 +710,14 @@ export default function Home() {
         <div className="value-intro">
           <p className="eyebrow">THE MUNTAZIR WAY</p>
           <h2>
-            Pieces with a point
+            Furniture with a
             <br />
-            of <i>view.</i>
+            point of <i>view.</i>
           </h2>
           <p>
-            From our workshop in Peshawar to your home, every piece is chosen
-            for its character, comfort, and staying power.
+            Crafted in Peshawar for everyday living, every piece brings
+            character, comfort, and lasting quality into the spaces we call
+            home.
           </p>
           <div className="value-signature">
             <span className="signature-mark">M</span>
@@ -755,9 +763,11 @@ export default function Home() {
               ],
             ].map(([number, title, copy]) => (
               <div className="value-item" key={title}>
-                <span>{number}</span>
-                <h3>{title}</h3>
-                <p>{copy}</p>
+                <div className="value-item-index">{number}</div>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{copy}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -895,14 +905,17 @@ export default function Home() {
             <div>
               <strong>Follow along</strong>
               <div className="socials">
-                <a href="#top" aria-label="Instagram">
-                  <Icon name="instagram" size={19} />
+                <a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
+                  <Icon name="instagram" size={18} />
                 </a>
-                <a href="#top" aria-label="Facebook">
-                  <Icon name="facebook" size={17} />
+                <a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
+                  <Icon name="facebook" size={18} />
                 </a>
-                <a href="#top" aria-label="Pinterest">
-                  <Icon name="pinterest" size={17} />
+                <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X">
+                  <Icon name="x" size={18} />
+                </a>
+                <a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube">
+                  <Icon name="youtube" size={18} />
                 </a>
               </div>
             </div>
